@@ -2,8 +2,8 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>월배당 ETF 확률 기반 매매 대시보드</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>월배당 ETF 매매 대시보드 (Mobile Optimized)</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root {
@@ -18,57 +18,74 @@
             --border: #334155;
         }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; }
+        
+        /* 기본 데스크탑 레이아웃 */
         body { background-color: var(--bg-color); color: var(--text-color); display: flex; height: 100vh; overflow: hidden; }
 
         /* 사이드바 */
-        aside { width: 300px; background-color: var(--card-bg); border-right: 1px solid var(--border); padding: 20px; display: flex; flex-direction: column; gap: 20px; }
-        h1 { font-size: 1.2rem; color: var(--primary); font-weight: 700; margin-bottom: 10px; }
+        aside { width: 320px; background-color: var(--card-bg); border-right: 1px solid var(--border); padding: 20px; display: flex; flex-direction: column; gap: 20px; flex-shrink: 0; z-index: 10; }
+        h1 { font-size: 1.2rem; color: var(--primary); font-weight: 700; margin-bottom: 5px; }
         .control-group { display: flex; flex-direction: column; gap: 8px; }
         label { font-size: 0.85rem; color: var(--text-muted); }
-        select, input[type="range"] { width: 100%; padding: 10px; background: var(--bg-color); border: 1px solid var(--border); color: var(--text-color); border-radius: 6px; }
+        select, input[type="range"] { width: 100%; padding: 12px; background: var(--bg-color); border: 1px solid var(--border); color: var(--text-color); border-radius: 8px; font-size: 1rem; } /* 터치 영역 확보를 위해 padding, font-size 증가 */
         
         /* 메인 콘텐츠 */
         main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
         
         /* 탭 메뉴 */
-        nav { display: flex; background: var(--card-bg); border-bottom: 1px solid var(--border); }
-        .tab-btn { padding: 15px 25px; border: none; background: none; color: var(--text-muted); cursor: pointer; font-size: 0.95rem; font-weight: 600; transition: all 0.2s; }
+        nav { display: flex; background: var(--card-bg); border-bottom: 1px solid var(--border); overflow-x: auto; white-space: nowrap; -webkit-overflow-scrolling: touch; }
+        nav::-webkit-scrollbar { display: none; } /* 모바일에서 스크롤바 숨김 */
+        .tab-btn { padding: 15px 20px; border: none; background: none; color: var(--text-muted); cursor: pointer; font-size: 0.95rem; font-weight: 600; transition: all 0.2s; }
         .tab-btn.active { color: var(--primary); border-bottom: 3px solid var(--primary); background: rgba(56, 189, 248, 0.05); }
 
         /* 콘텐츠 영역 */
-        .tab-content { pading: 20px; flex: 1; overflow-y: auto; display: none; padding: 25px; }
-        .tab-content.active { display: flex; flex-direction: column; gap: 25px; }
+        .tab-content { flex: 1; overflow-y: auto; display: none; padding: 20px; -webkit-overflow-scrolling: touch; }
+        .tab-content.active { display: flex; flex-direction: column; gap: 20px; }
 
-        /* 그리드 레이아웃 */
-        .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
-        .grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; }
+        /* 레이아웃 시스템 */
+        .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; }
+        .grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; }
 
         /* 카드 컴포넌트 */
-        .card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px; padding: 20px; position: relative; }
-        .card-title { font-size: 0.9rem; color: var(--text-muted); margin-bottom: 10px; font-weight: 600; }
-        .card-value { font-size: 1.8rem; font-weight: 700; }
+        .card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px; padding: 18px; position: relative; }
+        .card-title { font-size: 0.9rem; color: var(--text-muted); margin-bottom: 12px; font-weight: 600; line-height: 1.4; }
+        .card-value { font-size: 1.6rem; font-weight: 700; }
         
-        /* 테이블 스타일 */
-        table { width: 100%; border-collapse: collapse; margin-top: 10px; text-align: left; font-size: 0.9rem; }
-        th, td { padding: 12px; border-bottom: 1px solid var(--border); }
-        th { color: var(--text-muted); font-weight: 600; background: rgba(0,0,0,0.1); }
+        /* 테이블 반응형 래퍼 */
+        .table-responsive { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+        table { width: 100%; border-collapse: collapse; text-align: left; font-size: 0.85rem; min-width: 600px; } /* 모바일에서도 최소 폭 유지 */
+        th, td { padding: 12px 10px; border-bottom: 1px solid var(--border); white-space: nowrap; }
+        th { color: var(--text-muted); font-weight: 600; background: rgba(0,0,0,0.2); }
         tr:hover { background: rgba(255,255,255,0.02); }
 
-        /* 배지 및 유틸리티 */
-        .badge { padding: 4px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: bold; }
+        /* 타이포그래피 및 배지 */
+        .ticker { font-size: 0.7rem; color: var(--text-muted); font-family: monospace; background: rgba(0,0,0,0.3); padding: 2px 4px; border-radius: 4px; margin-left: 4px; }
+        .badge { padding: 4px 8px; border-radius: 6px; font-size: 0.75rem; font-weight: bold; display: inline-block; }
         .badge-success { background: rgba(34, 197, 94, 0.2); color: var(--success); }
         .badge-danger { background: rgba(239, 68, 68, 0.2); color: var(--danger); }
-        .badge-warning { background: rgba(234, 179, 8, 0.2); color: var(--warning); }
         
-        /* 토스트 알림 */
-        #toast-container { position: fixed; top: 20px; right: 20px; z-index: 1000; display: flex; flex-direction: column; gap: 10px; }
-        .toast { background: var(--card-bg); border-left: 4px solid var(--primary); padding: 15px 20px; border-radius: 6px; box-shadow: 0 4px 12px rgba(0,0,0,0.5); font-size: 0.9rem; animation: slideIn 0.3s ease; min-width: 280px; }
-        @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        /* 토스트 알림 (모바일 최적화) */
+        #toast-container { position: fixed; top: 15px; left: 50%; transform: translateX(-50%); z-index: 9999; display: flex; flex-direction: column; gap: 10px; width: 90%; max-width: 400px; pointer-events: none; }
+        .toast { background: var(--card-bg); border-left: 4px solid var(--primary); padding: 12px 15px; border-radius: 8px; box-shadow: 0 8px 16px rgba(0,0,0,0.6); font-size: 0.85rem; line-height: 1.4; animation: slideDown 0.4s ease forwards; pointer-events: auto; }
+        @keyframes slideDown { from { transform: translateY(-100%); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
 
-        .gauge-container { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 160px; }
-        .gauge-text { font-size: 2.2rem; font-weight: 800; margin-top: -10px; }
-        chart-wrapper { position: relative; height: 300px; width: 100%; }
+        .gauge-container { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 130px; }
+        .gauge-text { font-size: 2.2rem; font-weight: 800; margin-bottom: 5px; color: var(--text-color); }
+        .chart-wrapper { position: relative; height: 240px; width: 100%; }
+
+        /* ==========================================
+           📱 모바일 (아이폰) 환경 최적화 Media Query 
+           ========================================== */
+        @media (max-width: 768px) {
+            body { flex-direction: column; height: 100dvh; overflow: hidden; } /* iOS 15+ 대응 100dvh */
+            aside { width: 100%; padding: 15px; border-right: none; border-bottom: 1px solid var(--border); max-height: 250px; flex-shrink: 0; }
+            main { flex: 1; display: flex; flex-direction: column; min-height: 0; } /* min-height: 0 is important for flex child scrolling */
+            .grid-3, .grid-2 { grid-template-columns: 1fr; gap: 15px; } /* 모바일에서는 무조건 1단 세로 배치 */
+            .tab-btn { padding: 12px 16px; font-size: 0.9rem; }
+            .card { padding: 15px; }
+            .chart-wrapper { height: 200px; } /* 모바일 화면에 맞춰 차트 높이 축소 */
+        }
     </style>
 </head>
 <body>
@@ -78,191 +95,225 @@
     <aside>
         <div>
             <h1>Quant Dividend ETF</h1>
-            <p style="font-size: 0.8rem; color: var(--text-muted);">하루단위 확률 기반 매매 자동화 시스템</p>
-        </div>
-        <hr style="border-color: var(--border);">
-        <div class="control-group">
-            <label for="etf-select">분석 대상 월배당 ETF (상위 20선)</label>
-            <select id="etf-select" onchange="updateDashboard()"></select>
+            <p style="font-size: 0.8rem; color: var(--text-muted);">확률 기반 매매 타이밍 대시보드</p>
         </div>
         <div class="control-group">
-            <label for="prob-threshold">매수 진입 확률 임계값 (<span id="threshold-val">80</span>%)</label>
+            <select id="etf-select" onchange="handleSelectChange()"></select>
+        </div>
+        <div class="control-group">
+            <label for="prob-threshold" style="display:flex; justify-content:space-between;">
+                <span>매수 확률 임계값</span>
+                <strong style="color:var(--primary)"><span id="threshold-val">80</span>%</strong>
+            </label>
             <input type="range" id="prob-threshold" min="50" max="95" value="80" oninput="updateThreshold(this.value)">
-        </div>
-        <div style="margin-top: auto; font-size: 0.75rem; color: var(--text-muted); text-align: center;">
-            상태: 실시간 데이터 엔진 가동 중 (2026)
         </div>
     </aside>
 
     <main>
         <nav>
-            <button class="tab-btn active" onclick="switchTab(event, 'tab1')">종합 시그널 보드</button>
-            <button class="tab-btn" onclick="switchTab(event, 'tab2')">확률 통계 및 지표</button>
-            <button class="tab-btn" onclick="switchTab(event, 'tab3')">백테스팅 성과리포트</button>
+            <button class="tab-btn active" onclick="switchTab(event, 'tab1')">시그널 보드</button>
+            <button class="tab-btn" onclick="switchTab(event, 'tab2')">기술적 지표</button>
+            <button class="tab-btn" onclick="switchTab(event, 'tab3')">백테스트 리포트</button>
         </nav>
 
         <div id="tab1" class="tab-content active">
-            <h2 style="font-size: 1.1rem; font-weight: 600;">오늘의 매수 Top 3 추천 상품</h2>
-            <div class="grid-3" id="top3-container"></div>
-
             <div class="grid-2">
-                <div class="card" style="display: flex; flex-direction: column; justify-content: space-between;">
-                    <div class="card-title">선택 종목 최종 판단 확률</div>
+                <div class="card" style="text-align: center;">
+                    <div class="card-title" style="text-align: left;">선택 종목 매수 확률</div>
                     <div class="gauge-container">
                         <div class="gauge-text" id="main-gauge-text">0%</div>
-                        <div id="main-signal-badge" style="margin-top: 10px;">-</div>
+                        <div id="main-signal-badge" class="badge">-</div>
                     </div>
                 </div>
                 <div class="card">
-                    <div class="card-title">실시간 배당락 및 괴리율 상태 파악</div>
-                    <div style="display: flex; flex-direction: column; gap: 12px; margin-top: 15px;">
+                    <div class="card-title">배당 및 리스크 스캐너</div>
+                    <div style="display: flex; flex-direction: column; gap: 12px; margin-top: 10px; font-size: 0.95rem;">
                         <div style="display:flex; justify-content:space-between;"><span>연환산 분배율</span><strong id="info-div-rate" style="color: var(--primary);">-</strong></div>
                         <div style="display:flex; justify-content:space-between;"><span>현재 괴리율</span><strong id="info-discrepancy">-</strong></div>
                         <div style="display:flex; justify-content:space-between;"><span>차기 배당락일</span><strong id="info-ex-date">-</strong></div>
-                        <div style="display:flex; justify-content:space-between;"><span>예상 주당분배금</span><strong id="info-dps">-</strong></div>
+                        <div style="display:flex; justify-content:space-between;"><span>예상 분배금</span><strong id="info-dps">-</strong></div>
                     </div>
                 </div>
             </div>
 
-            <div class="card" style="flex: 1; min-height: 250px; overflow-y: auto;">
-                <div class="card-title">월배당 고배당율 상위 20개 ETF 마켓 종합 보드</div>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>순위</th>
-                            <th>종목명</th>
-                            <th>현재가</th>
-                            <th>연환산 분배율</th>
-                            <th>괴리율</th>
-                            <th>매수 확률</th>
-                            <th>상태</th>
-                        </tr>
-                    </thead>
-                    <tbody id="market-table-body"></tbody>
-                </table>
+            <div class="card">
+                <div class="card-title">🏆 오늘의 탑픽 ETF (Top 3)</div>
+                <div class="grid-3" id="top3-container" style="gap:10px;"></div>
+            </div>
+
+            <div class="card" style="padding: 0; overflow: hidden; display: flex; flex-direction: column;">
+                <div class="card-title" style="padding: 15px 15px 0 15px;">월배당 ETF 마켓 보드</div>
+                <div class="table-responsive" style="padding-bottom: 10px;">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>종목명 (티커)</th>
+                                <th>현재가</th>
+                                <th>분배율</th>
+                                <th>괴리율</th>
+                                <th>확률</th>
+                                <th>상태</th>
+                            </tr>
+                        </thead>
+                        <tbody id="market-table-body"></tbody>
+                    </table>
+                </div>
             </div>
         </div>
 
         <div id="tab2" class="tab-content">
+            <div class="card">
+                <div class="card-title">최근 30일 주가 및 볼린저밴드 추이</div>
+                <div class="chart-wrapper"><canvas id="chart-price"></canvas></div>
+            </div>
             <div class="grid-2">
                 <div class="card">
-                    <div class="card-title">과매도(RSI 30이하) 진입 시 역사적 단기 반등 확률</div>
+                    <div class="card-title">RSI 과매도 구간 단기 반등 확률</div>
                     <div class="chart-wrapper"><canvas id="chart-rebound"></canvas></div>
                 </div>
                 <div class="card">
-                    <div class="card-title">배당락 시나리오별 승률/기대값 분석</div>
+                    <div class="card-title">배당락 시나리오별 승률 비교</div>
                     <div class="chart-wrapper"><canvas id="chart-scenario"></canvas></div>
                 </div>
-            </div>
-            <div class="card">
-                <div class="card-title">최근 30거래일 주가 동향 및 보조지표 시각화 (볼린저밴드 / RSI)</div>
-                <div class="chart-wrapper" style="height: 250px;"><canvas id="chart-price"></canvas></div>
             </div>
         </div>
 
         <div id="tab3" class="tab-content">
             <div class="grid-3">
-                <div class="card"><div class="card-title">알고리즘 누적 수익률</div><div class="card-value" id="backtest-return" style="color:var(--success)">0.0%</div></div>
-                <div class="card"><div class="card-title">최대 낙폭 (MDD)</div><div class="card-value" id="backtest-mdd" style="color:var(--danger)">0.0%</div></div>
-                <div class="card"><div class="card-title">위험대비 성과 (Sharpe)</div><div class="card-value" id="backtest-sharpe">0.00</div></div>
+                <div class="card" style="padding: 15px;"><div class="card-title" style="margin-bottom:5px;">누적 수익률</div><div class="card-value" id="backtest-return" style="color:var(--success)">0.0%</div></div>
+                <div class="card" style="padding: 15px;"><div class="card-title" style="margin-bottom:5px;">최대 낙폭(MDD)</div><div class="card-value" id="backtest-mdd" style="color:var(--danger)">0.0%</div></div>
+                <div class="card" style="padding: 15px;"><div class="card-title" style="margin-bottom:5px;">Sharpe Ratio</div><div class="card-value" id="backtest-sharpe">0.00</div></div>
             </div>
-            <div class="card" style="flex: 1; min-height: 300px;">
-                <div class="card-title">단순 보유(Benchmark) vs 확률 기반 알고리즘 자산 성장 곡선 시뮬레이션</div>
-                <div class="chart-wrapper" style="height: 100%; min-height: 280px;"><canvas id="chart-backtest"></canvas></div>
+            <div class="card">
+                <div class="card-title">확률 기반 알고리즘 vs 단순 보유 자산 시뮬레이션</div>
+                <div class="chart-wrapper" style="height: 250px;"><canvas id="chart-backtest"></canvas></div>
             </div>
         </div>
     </main>
 
     <script>
-        // 1. 가상 데이터셋 (상위 20개 월배당 ETF 기초 원천 정보 가상 세팅)
-        const etfNames = [
-            "TIGER 미국배당다우존스", "KODEX 미국배당프리미엄액티브", "SOL 미국배당다우존스", "TIGER 미국테크TOP10+10%프리미엄",
-            "KODEX 미국반도체+15%타겟프리미엄", "ACE 미국배당다우존스", "TIGER 미국30년국채프리미엄액티브", "KODEX 고배당",
-            "ARIRANG 고배당주", "KBSTAR 200고배당액티브", "TIGER 리츠부동산인프라", "SOL 미국30년국채커버드콜",
-            "ACE 미국빅테크7+15%타겟프리미엄", "KODEX 미국AI전력핵심인프라", "TIGER 미국커버드콜", "히어로즈 리츠고배당액티브",
-            "WOORI 미국S&P배당액티브", "HANARO 고배당", "PLUS 고배당주", "TIGER 미국나스닥100커버드콜"
+        const etfRawData = [
+            { name: "TIGER 미국배당다우존스", ticker: "458730" }, { name: "KODEX 미국배당프리미엄", ticker: "442950" },
+            { name: "SOL 미국배당다우존스", ticker: "446720" }, { name: "TIGER 미테크TOP10+10%", ticker: "474220" },
+            { name: "KODEX 미반도체+15%", ticker: "481060" }, { name: "ACE 미국배당다우존스", ticker: "461580" },
+            { name: "TIGER 미30년국채+프리미엄", ticker: "476550" }, { name: "KODEX 고배당", ticker: "271060" },
+            { name: "ARIRANG 고배당주", ticker: "161510" }, { name: "KBSTAR 200고배당", ticker: "381570" },
+            { name: "TIGER 리츠부동산인프라", ticker: "329200" }, { name: "SOL 미국30년국채커버드", ticker: "470220" },
+            { name: "ACE 빅테크7+15%타겟", ticker: "479900" }, { name: "KODEX 미AI전력인프라", ticker: "486450" },
+            { name: "TIGER 미국커버드콜", ticker: "420110" }, { name: "히어로즈 리츠고배당", ticker: "424880" },
+            { name: "WOORI 미S&P배당액티브", ticker: "466940" }, { name: "HANARO 고배당", ticker: "315480" },
+            { name: "PLUS 고배당주", ticker: "194720" }, { name: "TIGER 미나스닥100커버드", ticker: "441680" }
         ];
 
         let etfData = [];
         let charts = {};
+        let currentTab = 'tab1';
 
         function initData() {
-            etfData = etfNames.map((name, index) => {
-                const baseDivRate = (12.5 - (index * 0.35)).toFixed(2); // 분배율 내림차순 트리거
-                const buyProb = Math.floor(Math.random() * 45) + 50; // 50%~95% 가상 확률 설계
-                const discrepancy = (Math.random() * 1.2 - 0.6).toFixed(2); // 괴리율 오차범위 가상 데이터 생성
-
+            etfData = etfRawData.map((item, index) => {
+                const baseDivRate = (12.5 - (index * 0.35)).toFixed(2); 
+                const buyProb = Math.floor(Math.random() * 45) + 50; 
+                const discrepancy = (Math.random() * 1.2 - 0.6).toFixed(2); 
                 return {
-                    id: `ETF_${String(index+1).padStart(2, '0')}`,
-                    name: name,
-                    price: Math.floor(Math.random() * 5000) + 8000,
-                    divRate: parseFloat(baseDivRate),
-                    discrepancy: parseFloat(discrepancy),
-                    buyProb: buyProb,
-                    dps: Math.floor(Math.random() * 30) + 70,
-                    exDate: "2026-05-29"
+                    id: `ETF_${String(index+1).padStart(2, '0')}`, name: item.name, ticker: item.ticker,
+                    price: Math.floor(Math.random() * 5000) + 8000, divRate: parseFloat(baseDivRate),
+                    discrepancy: parseFloat(discrepancy), buyProb: buyProb,
+                    dps: Math.floor(Math.random() * 30) + 70, exDate: "2026-05-29"
                 };
             });
         }
 
-        // 2. 초기 구동 엔진 컨트롤러
         window.onload = function() {
             initData();
-            
-            // 셀렉트박스 아이템 주입
             const select = document.getElementById('etf-select');
             etfData.forEach(etf => {
                 let opt = document.createElement('option');
                 opt.value = etf.id;
-                opt.innerText = `[${etf.id}] ${etf.name}`;
+                opt.innerText = `[${etf.ticker}] ${etf.name}`;
                 select.appendChild(opt);
             });
 
             renderMarketTable();
             renderTop3();
-            updateDashboard();
+            updateDashboardCore();
             triggerPushNotifications();
         };
 
         function updateThreshold(val) {
             document.getElementById('threshold-val').innerText = val;
-            renderMarketTable(); // 조건 변경에 따른 스크리너 실시간 리프레시 효과
-            runBacktestSimulation();
+            renderMarketTable(); 
+            updateDashboardCore();
         }
 
+        function handleSelectChange() {
+            updateDashboardCore();
+        }
+
+        // 비활성 탭 렌더링 버그 수정: 탭 전환 시에만 해당 탭의 차트를 렌더링
         function switchTab(evt, tabId) {
             document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
             document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
             evt.currentTarget.classList.add('active');
             document.getElementById(tabId).classList.add('active');
+            currentTab = tabId;
             
-            // 탭 변환 시 차트 렌더링 깨짐 방지 목적 리프레시
-            if(tabId === 'tab2' || tabId === 'tab3') updateDashboard();
+            const selectedId = document.getElementById('etf-select').value;
+            const etf = etfData.find(e => e.id === selectedId);
+
+            // 해당 탭이 화면에 나타난 직후(display:block) 차트를 그려야 Dimension 오류가 발생하지 않음
+            setTimeout(() => {
+                if(tabId === 'tab2') renderTab2Charts(etf);
+                if(tabId === 'tab3') runBacktestSimulation();
+            }, 50);
         }
 
-        // 3. UI 렌더링 파트
+        // 공통 정보 업데이트 (Tab 1 등 기본 텍스트)
+        function updateDashboardCore() {
+            const selectedId = document.getElementById('etf-select').value;
+            const etf = etfData.find(e => e.id === selectedId);
+            const threshold = parseInt(document.getElementById('prob-threshold').value);
+
+            // Tab 1 게이지 및 상태 텍스트
+            document.getElementById('main-gauge-text').innerText = `${etf.buyProb}%`;
+            document.getElementById('main-gauge-text').style.color = etf.buyProb >= threshold ? 'var(--success)' : 'var(--text-color)';
+            
+            const badgeZone = document.getElementById('main-signal-badge');
+            if(etf.buyProb >= threshold) {
+                badgeZone.className = "badge badge-success"; badgeZone.innerText = "조건충족 매수 추천";
+            } else {
+                badgeZone.className = "badge"; badgeZone.innerText = "임계값 미달 관망";
+            }
+
+            document.getElementById('info-div-rate').innerText = `${etf.divRate}%`;
+            document.getElementById('info-ex-date').innerText = etf.exDate;
+            document.getElementById('info-dps').innerText = `${etf.dps}원`;
+
+            if(Math.abs(etf.discrepancy) >= 0.5) {
+                document.getElementById('info-discrepancy').innerHTML = `${etf.discrepancy}% <span class="badge badge-danger">주의</span>`;
+            } else {
+                document.getElementById('info-discrepancy').innerText = `${etf.discrepancy}%`;
+            }
+
+            // 현재 활성화된 탭의 차트만 즉시 리프레시 (Dimension 에러 방지)
+            if(currentTab === 'tab2') renderTab2Charts(etf);
+            if(currentTab === 'tab3') runBacktestSimulation();
+        }
+
         function renderMarketTable() {
             const threshold = parseInt(document.getElementById('prob-threshold').value);
             const tbody = document.getElementById('market-table-body');
             tbody.innerHTML = "";
 
-            etfData.forEach((etf, i) => {
-                let statusBadge = `<span class="badge">관망</span>`;
-                if(etf.buyProb >= threshold) {
-                    statusBadge = `<span class="badge badge-success">조건충족 매수</span>`;
-                } else if(etf.buyProb < 60) {
-                    statusBadge = `<span class="badge badge-danger">주의/매도</span>`;
-                }
-
-                let discBadgeClass = Math.abs(etf.discrepancy) >= 0.5 ? 'color: var(--danger); font-weight:bold;' : '';
+            etfData.forEach((etf) => {
+                let statusBadge = etf.buyProb >= threshold ? `<span class="badge badge-success">매수</span>` : (etf.buyProb < 60 ? `<span class="badge badge-danger">관망</span>` : `<span class="badge">대기</span>`);
+                let discStyle = Math.abs(etf.discrepancy) >= 0.5 ? 'color: var(--danger); font-weight:bold;' : '';
 
                 let tr = document.createElement('tr');
                 tr.innerHTML = `
-                    <td>${i+1}</td>
-                    <td style="font-weight:600;">${etf.name}</td>
-                    <td>${etf.price.toLocaleString()}원</td>
+                    <td style="font-weight:600; white-space:nowrap;">${etf.name}<br><span class="ticker" style="margin-left:0;">${etf.ticker}</span></td>
+                    <td>${etf.price.toLocaleString()}</td>
                     <td style="color:var(--primary); font-weight:600;">${etf.divRate}%</td>
-                    <td style="${discBadgeClass}">${etf.discrepancy}%</td>
+                    <td style="${discStyle}">${etf.discrepancy}%</td>
                     <td><strong style="color:${etf.buyProb >= threshold ? 'var(--success)' : 'var(--text-color)'}">${etf.buyProb}%</strong></td>
                     <td>${statusBadge}</td>
                 `;
@@ -271,117 +322,59 @@
         }
 
         function renderTop3() {
-            // 확률이 높은 순으로 가상 정렬하여 상위 3개 도출
             let sorted = [...etfData].sort((a,b) => b.buyProb - a.buyProb).slice(0, 3);
             const container = document.getElementById('top3-container');
             container.innerHTML = "";
 
             sorted.forEach(etf => {
-                let card = document.createElement('div');
-                card.className = "card";
-                card.innerHTML = `
-                    <div class="card-title" style="color:var(--primary)">★ TOP 추천 시그널</div>
-                    <div style="font-weight:700; margin-bottom:10px; font-size:1rem; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${etf.name}</div>
+                let div = document.createElement('div');
+                div.style.padding = '10px'; div.style.background = 'rgba(255,255,255,0.03)'; div.style.borderRadius = '8px'; div.style.border = '1px solid var(--border)';
+                div.innerHTML = `
+                    <div style="font-weight:600; font-size:0.85rem; margin-bottom:5px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${etf.name}</div>
                     <div style="display:flex; justify-content:space-between; align-items:center;">
-                        <span style="font-size:0.8rem; color:var(--text-muted);">매수확률</span>
-                        <span style="font-size:1.5rem; font-weight:bold; color:var(--success);">${etf.buyProb}%</span>
+                        <span class="ticker" style="margin-left:0;">${etf.ticker}</span>
+                        <span style="font-size:1.2rem; font-weight:bold; color:var(--success);">${etf.buyProb}%</span>
                     </div>
                 `;
-                container.appendChild(card);
+                container.appendChild(div);
             });
         }
 
-        function updateDashboard() {
-            const selectedId = document.getElementById('etf-select').value;
-            const etf = etfData.find(e => e.id === selectedId);
-            const threshold = parseInt(document.getElementById('prob-threshold').value);
+        Chart.defaults.color = '#94a3b8';
+        Chart.defaults.font.family = '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
 
-            // 게이지 및 단순 매핑 데이터 바인딩
-            document.getElementById('main-gauge-text').innerText = `${etf.buyProb}%`;
-            const badgeZone = document.getElementById('main-signal-badge');
-            if(etf.buyProb >= threshold) {
-                badgeZone.className = "badge badge-success";
-                badgeZone.innerText = "조건부 알고리즘 매수 진입 추천";
-                badgeZone.style.fontSize = "0.9rem";
-            } else {
-                badgeZone.className = "badge";
-                badgeZone.innerText = "통계적 임계값 미달 (관망 요망)";
-                badgeZone.style.fontSize = "0.9rem";
-            }
-
-            document.getElementById('info-div-rate').innerText = `${etf.divRate}%`;
-            document.getElementById('info-discrepancy').innerText = `${etf.discrepancy}%`;
-            document.getElementById('info-ex-date').innerText = etf.exDate;
-            document.getElementById('info-dps').innerText = `${etf.dps}원`;
-
-            if(Math.abs(etf.discrepancy) >= 0.5) {
-                document.getElementById('info-discrepancy').innerHTML = `${etf.discrepancy}% <span class="badge badge-danger" style="margin-left:5px;">괴리율 과대</span>`;
-            }
-
-            // 차트 리프레시 컴포넌트 호출
-            renderTab2Charts(etf);
-            runBacktestSimulation();
-        }
-
-        // 4. 차트 그래픽 연산 파트 (Chart.js 제어)
         function renderTab2Charts(etf) {
-            // 가상 조건부 데이터 세팅 로직
-            const reboundData = [
-                Math.floor(Math.random()*15) + 65, // 1일후 반등확률
-                Math.floor(Math.random()*10) + 75, // 3일후
-                Math.floor(Math.random()*10) + 80  // 5일후
-            ];
-
-            const scenarioData = [
-                Math.floor(Math.random()*20) + 45, // 시나리오A 승률
-                Math.floor(Math.random()*20) + 60  // 시나리오B 승률
-            ];
-
-            // 4-1. 단기 반등 확률 차트
             if(charts.rebound) charts.rebound.destroy();
             charts.rebound = new Chart(document.getElementById('chart-rebound'), {
                 type: 'bar',
                 data: {
-                    labels: ['T+1일 후 주가상승', 'T+3일 후 주가상승', 'T+5일 후 주가상승'],
+                    labels: ['T+1일', 'T+3일', 'T+5일'],
                     datasets: [{
-                        label: '과거 통계 기반 반등 성공 확률 (%)',
-                        data: reboundData,
-                        backgroundColor: ['#0284c7', '#0369a1', '#075985'],
-                        borderRadius: 6
+                        label: '반등 성공 확률 (%)', data: [68, 75, 82],
+                        backgroundColor: ['#0284c7', '#0369a1', '#075985'], borderRadius: 4
                     }]
                 },
-                options: { responsive: true, maintainAspectRatio: false, scales: { y: { min: 0, max: 100 } } }
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { min: 0, max: 100 } } }
             });
 
-            // 4-2. 배당락 시나리오 차트
             if(charts.scenario) charts.scenario.destroy();
             charts.scenario = new Chart(document.getElementById('chart-scenario'), {
                 type: 'bar',
                 data: {
-                    labels: ['시나리오 A (배당수령 후 매도)', '시나리오 B (배당락 후 저점매수)'],
+                    labels: ['배당 전 매수', '배당락 후 저점'],
                     datasets: [{
-                        label: '통계적 승률 (%)',
-                        data: scenarioData,
-                        backgroundColor: ['#f59e0b', '#10b981'],
-                        borderRadius: 6
+                        label: '승률 (%)', data: [55, 62],
+                        backgroundColor: ['#f59e0b', '#10b981'], borderRadius: 4
                     }]
                 },
-                options: { responsive: true, maintainAspectRatio: false, scales: { y: { min: 0, max: 100 } } }
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { min: 0, max: 100 } } }
             });
 
-            // 4-3. 주가 및 지표 변동 추이 가상 라인 생성
-            let priceLabels = [];
-            let priceValues = [];
-            let bUpper = [];
-            let bLower = [];
-            let startPrice = etf.price - 300;
-
+            let priceLabels = []; let priceValues = []; let bUpper = []; let bLower = [];
+            let startPrice = etf.price - 200;
             for(let i=30; i>=0; i--) {
-                priceLabels.push(`D-${i}`);
-                startPrice += Math.floor(Math.random() * 160) - 75;
-                priceValues.push(startPrice);
-                bUpper.push(startPrice + 120);
-                bLower.push(startPrice - 120);
+                priceLabels.push(`D-${i}`); startPrice += Math.floor(Math.random() * 100) - 45;
+                priceValues.push(startPrice); bUpper.push(startPrice + 80); bLower.push(startPrice - 80);
             }
 
             if(charts.price) charts.price.destroy();
@@ -390,21 +383,18 @@
                 data: {
                     labels: priceLabels,
                     datasets: [
-                        { label: '종가(Close)', data: priceValues, borderColor: '#38bdf8', borderWidth: 2, tension: 0.1 },
-                        { label: 'BB 상단', data: bUpper, borderColor: 'rgba(255,255,255,0.15)', borderDash: [5,5], pointRadius: 0 },
-                        { label: 'BB 하단', data: bLower, borderColor: 'rgba(255,255,255,0.15)', borderDash: [5,5], pointRadius: 0 }
+                        { label: '종가', data: priceValues, borderColor: '#38bdf8', borderWidth: 2, tension: 0.1, pointRadius: 0 },
+                        { label: 'BB 상단', data: bUpper, borderColor: 'rgba(255,255,255,0.1)', borderDash: [5,5], pointRadius: 0 },
+                        { label: 'BB 하단', data: bLower, borderColor: 'rgba(255,255,255,0.1)', borderDash: [5,5], pointRadius: 0 }
                     ]
                 },
-                options: { responsive: true, maintainAspectRatio: false, elements: { point: { radius: 1 } } }
+                options: { responsive: true, maintainAspectRatio: false, interaction: { mode: 'index', intersect: false }, plugins: { legend: { display: false } } }
             });
         }
 
-        // 5. 시뮬레이터 백테스팅 연산 모듈
         function runBacktestSimulation() {
             const threshold = parseInt(document.getElementById('prob-threshold').value);
-            
-            // 임계값이 고도화될수록 가상 승률과 성능이 타겟팅 최적화되도록 가상 수식 바인딩
-            let baseReturn = (threshold * 0.45) + (Math.random() * 8);
+            let baseReturn = (threshold * 0.45) + 5;
             let baseMdd = (25 - (threshold * 0.22)).toFixed(1);
             let baseSharpe = (1.1 + (threshold * 0.01)).toFixed(2);
 
@@ -412,14 +402,11 @@
             document.getElementById('backtest-mdd').innerText = `-${baseMdd}%`;
             document.getElementById('backtest-sharpe').innerText = baseSharpe;
 
-            // 시뮬레이션 선그래프 구현
-            let simLabels = Array.from({length: 12}, (_, i) => `${i+1}개월전`);
-            let benchmarkAsset = [100];
-            let algoAsset = [100];
-
+            let simLabels = Array.from({length: 12}, (_, i) => `${i+1}M`);
+            let benchmarkAsset = [100]; let algoAsset = [100];
             for(let i=1; i<12; i++) {
-                benchmarkAsset.push(benchmarkAsset[i-1] + (Math.random() * 4 - 1.5));
-                algoAsset.push(algoAsset[i-1] + (Math.random() * 6 - (2 - (threshold*0.01))));
+                benchmarkAsset.push(benchmarkAsset[i-1] + (Math.random() * 3 - 1.2));
+                algoAsset.push(algoAsset[i-1] + (Math.random() * 5 - 1));
             }
 
             if(charts.backtest) charts.backtest.destroy();
@@ -428,41 +415,38 @@
                 data: {
                     labels: simLabels,
                     datasets: [
-                        { label: '확률기반 알고리즘 자산', data: algoAsset, borderColor: '#22c55e', borderWidth: 2.5 },
-                        { label: '단순 보유 단순 자산(Benchmark)', data: benchmarkAsset, borderColor: '#64748b', borderWidth: 1.5 }
+                        { label: '알고리즘', data: algoAsset, borderColor: '#22c55e', borderWidth: 2, pointRadius: 2 },
+                        { label: '단순보유', data: benchmarkAsset, borderColor: '#64748b', borderWidth: 1.5, borderDash: [4,4], pointRadius: 0 }
                     ]
                 },
-                options: { responsive: true, maintainAspectRatio: false }
+                options: { responsive: true, maintainAspectRatio: false, interaction: { mode: 'index', intersect: false }, plugins: { legend: { position: 'bottom' } } }
             });
         }
 
-        // 6. 실시간 조건 감지 기반 가상 스마트 푸시 알림 타겟팅 엔진
         function triggerPushNotifications() {
             setInterval(() => {
-                // 상위 20개 종목 중 임의의 자산 가상 가중치 타격 변동 조건 시뮬레이션
                 const randomEtf = etfData[Math.floor(Math.random() * etfData.length)];
-                const mockProbs = [82, 87, 91, 54, 42];
+                const mockProbs = [83, 88, 92];
                 const targetProb = mockProbs[Math.floor(Math.random() * mockProbs.length)];
-                
                 const threshold = parseInt(document.getElementById('prob-threshold').value);
 
                 if(targetProb >= threshold) {
-                    showToast(`🚨 [시그널 발생] ${randomEtf.name}의 단기 반등 예측 확률이 ${targetProb}%로 타겟 임계값을 돌파했습니다! 즉시 매수 진입을 검토하십시오.`);
+                    showToast(`🚨 [시그널 발생] ${randomEtf.name}(${randomEtf.ticker})의 예측 확률이 ${targetProb}%를 돌파했습니다.`);
                 }
-            }, 12000); // 12초 주기로 백그라운드 탐색 실시간 동기화 자동화 연출
+            }, 18000); // 18초 주기로 모바일 환경 시뮬레이션
         }
 
         function showToast(message) {
             const container = document.getElementById('toast-container');
             const toast = document.createElement('div');
             toast.className = 'toast';
-            toast.innerText = message;
+            toast.innerHTML = `<span style="font-size:1.1rem; margin-right:5px;">💡</span>${message}`;
             container.appendChild(toast);
 
             setTimeout(() => {
-                toast.style.animation = 'slideIn 0.3s ease reverse';
-                setTimeout(() => toast.remove(), 300);
-            }, 5000);
+                toast.style.animation = 'slideDown 0.4s ease reverse backwards';
+                setTimeout(() => toast.remove(), 400);
+            }, 4000);
         }
     </script>
 </body>
