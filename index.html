@@ -14,407 +14,107 @@
             --color-up: #2ea043;
             --color-down: #f85149;
             --color-hold: #58a6ff;
-            --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
         }
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
+        body { background-color: var(--bg-base); color: var(--text-main); font-family: sans-serif; padding: 20px; }
+        
+        header { margin-bottom: 20px; border-bottom: 1px solid var(--bg-card); padding-bottom: 20px; }
+        .tab-container { display: flex; gap: 10px; margin-top: 15px; }
+        .tab-btn { padding: 8px 16px; background: var(--bg-card); border: 1px solid #30363d; color: var(--text-muted); cursor: pointer; border-radius: 6px; }
+        .tab-btn.active { background: var(--color-hold); color: white; border-color: var(--color-hold); }
 
-        body {
-            background-color: var(--bg-base);
-            color: var(--text-main);
-            font-family: var(--font-family);
-            line-height: 1.5;
-            padding: 20px;
-        }
-
-        header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-            padding-bottom: 20px;
-            border-bottom: 1px solid var(--bg-card);
-        }
-
-        h1 {
-            font-size: 1.5rem;
-            font-weight: 600;
-        }
-
-        .disclaimer {
-            font-size: 0.8rem;
-            color: var(--text-muted);
-            margin-top: 5px;
-        }
-
-        .controls {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-
-        .btn-refresh {
-            background-color: var(--bg-card);
-            color: var(--text-main);
-            border: 1px solid #30363d;
-            padding: 6px 12px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 0.9rem;
-            transition: background-color 0.2s;
-        }
-
-        .btn-refresh:hover {
-            background-color: #30363d;
-        }
-
-        .toggle-container {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 0.9rem;
-            color: var(--text-muted);
-        }
-
-        .grid-container {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 15px;
-        }
-
-        .card {
-            background-color: var(--bg-panel);
-            border: 1px solid var(--bg-card);
-            border-radius: 8px;
-            padding: 15px;
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-            transition: transform 0.2s, box-shadow 0.2s;
-        }
-
-        .card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.5);
-            border-color: #30363d;
-        }
-
-        .card-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-        }
-
-        .ticker {
-            font-size: 1.25rem;
-            font-weight: bold;
-            color: #ffffff;
-        }
-
-        .price-info {
-            text-align: right;
-        }
-
-        .price {
-            font-size: 1.2rem;
-            font-weight: 600;
-        }
-
-        .change {
-            font-size: 0.85rem;
-            font-weight: 500;
-        }
-
-        .up { color: var(--color-up); }
-        .down { color: var(--color-down); }
-
-        .indicators {
-            display: flex;
-            justify-content: space-between;
-            font-size: 0.8rem;
-            color: var(--text-muted);
-            background: var(--bg-base);
-            padding: 8px;
-            border-radius: 6px;
-        }
-
-        .prob-section {
-            display: flex;
-            flex-direction: column;
-            gap: 5px;
-        }
-
-        .prob-label {
-            display: flex;
-            justify-content: space-between;
-            font-size: 0.8rem;
-        }
-
-        .progress-bg {
-            background-color: var(--bg-base);
-            height: 6px;
-            border-radius: 3px;
-            overflow: hidden;
-            position: relative;
-        }
-
-        .progress-fill {
-            height: 100%;
-            border-radius: 3px;
-            transition: width 0.5s ease-in-out;
-        }
-
+        .grid-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 15px; }
+        .card { background-color: var(--bg-panel); border: 1px solid var(--bg-card); border-radius: 8px; padding: 15px; }
+        .card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; }
+        .name { font-size: 1rem; font-weight: bold; }
+        .ticker { font-size: 0.75rem; color: var(--text-muted); font-family: monospace; }
+        
+        .signal-badge { padding: 4px 10px; border-radius: 12px; font-size: 0.75rem; font-weight: bold; display: inline-block; margin-bottom: 10px; }
+        .signal-strong-buy { border: 1px solid var(--color-up); color: var(--color-up); }
+        .signal-hold { border: 1px solid var(--color-hold); color: var(--color-hold); }
+        
+        .progress-bg { background-color: var(--bg-base); height: 6px; border-radius: 3px; overflow: hidden; margin: 5px 0 10px; }
+        .progress-fill { height: 100%; }
         .fill-buy { background-color: var(--color-up); }
         .fill-sell { background-color: var(--color-down); }
-
-        .signal-badge {
-            align-self: flex-start;
-            padding: 4px 10px;
-            border-radius: 12px;
-            font-size: 0.75rem;
-            font-weight: bold;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .signal-strong-buy { background: rgba(46, 160, 67, 0.2); color: var(--color-up); border: 1px solid var(--color-up); }
-        .signal-buy { background: rgba(46, 160, 67, 0.1); color: var(--color-up); }
-        .signal-hold { background: rgba(88, 166, 255, 0.1); color: var(--color-hold); }
-        .signal-sell { background: rgba(248, 81, 73, 0.1); color: var(--color-down); }
-        .signal-strong-sell { background: rgba(248, 81, 73, 0.2); color: var(--color-down); border: 1px solid var(--color-down); }
-
-        .loading {
-            grid-column: 1 / -1;
-            text-align: center;
-            padding: 50px;
-            color: var(--text-muted);
-        }
+        .up { color: var(--color-up); } .down { color: var(--color-down); }
     </style>
 </head>
 <body>
 
     <header>
-        <div>
-            <h1>Dividend ETF Quant Dashboard</h1>
-            <p class="disclaimer">⚠️ 기술적 지표(RSI, MA 이격도 등)에 기반한 알고리즘 시그널입니다. 절대적인 미래 예측이 아님을 유의하십시오.</p>
-        </div>
-        <div class="controls">
-            <div class="toggle-container">
-                <input type="checkbox" id="mockToggle" checked>
-                <label for="mockToggle">Mock Data 사용 (API Limits 우회)</label>
-            </div>
-            <button class="btn-refresh" onclick="fetchAndRenderData()">🔄 실시간 갱신</button>
+        <h1>Dividend ETF Quant Dashboard</h1>
+        <div class="tab-container">
+            <button class="tab-btn active" onclick="switchTab('domestic')">국내 ETF</button>
+            <button class="tab-btn" onclick="switchTab('international')">해외 ETF</button>
         </div>
     </header>
 
-    <main id="dashboard" class="grid-container">
-        <div class="loading">데이터를 분석 중입니다...</div>
-    </main>
+    <main id="dashboard" class="grid-container"></main>
 
     <script>
-        // Target: Top 20 Monthly Dividend US ETFs
-        const ETFs = [
-            { ticker: 'JEPI', base: 55 }, { ticker: 'JEPQ', base: 50 }, { ticker: 'SPHD', base: 43 },
-            { ticker: 'DGRW', base: 68 }, { ticker: 'PEY', base: 21 }, { ticker: 'O', base: 52 },
-            { ticker: 'MAIN', base: 44 }, { ticker: 'QYLD', base: 17 }, { ticker: 'RYLD', base: 16 },
-            { ticker: 'XYLD', base: 39 }, { ticker: 'DIA', base: 380 }, { ticker: 'DIV', base: 15 },
-            { ticker: 'SDIV', base: 22 }, { ticker: 'SRET', base: 21 }, { ticker: 'PGX', base: 11 },
-            { ticker: 'PFFD', base: 20 }, { ticker: 'FPE', base: 17 }, { ticker: 'STK', base: 31 },
-            { ticker: 'BITO', base: 25 }, { ticker: 'TSLY', base: 14 }
-        ];
+        const ETFData = {
+            domestic: [
+                { name: 'TIGER 리츠부동산', ticker: '329200', base: 4500 }, { name: 'KODEX 고배당', ticker: '102110', base: 12000 },
+                { name: 'KBSTAR 배당귀족', ticker: '292370', base: 11000 }, { name: 'ARIRANG 고배당주', ticker: '161510', base: 13000 },
+                { name: 'KOSEF 고배당', ticker: '200250', base: 10500 }, { name: 'TIGER 미국배당다우존스', ticker: '458730', base: 12000 },
+                { name: 'ACE 미국배당다우존스', ticker: '449180', base: 11500 }, { name: 'SOL 미국배당다우존스', ticker: '448510', base: 11200 },
+                { name: 'KODEX 미국배당프리미엄', ticker: '458900', base: 10800 }, { name: 'HANARO 고배당', ticker: '290270', base: 9500 },
+                { name: 'TIGER 글로벌멀티에셋', ticker: '332930', base: 9800 }, { name: 'KODEX 배당성장', ticker: '213610', base: 14000 },
+                { name: 'KBSTAR 고배당', ticker: '148070', base: 8900 }, { name: 'ACE 고배당', ticker: '292750', base: 9200 },
+                { name: 'SOL 고배당', ticker: '433330', base: 9100 }, { name: 'TIGER 배당성장', ticker: '211270', base: 15000 },
+                { name: 'KODEX 배당가치', ticker: '264660', base: 10200 }, { name: 'KBSTAR 미국배당다우존스', ticker: '458740', base: 11300 },
+                { name: 'ACE 미국배당30', ticker: '464920', base: 10500 }, { name: 'TIGER 미국배당+7%프리미엄', ticker: '476680', base: 10100 }
+            ],
+            international: [
+                { name: 'JPMorgan Equity Premium', ticker: 'JEPI', base: 55 }, { name: 'JPMorgan Nasdaq Equity', ticker: 'JEPQ', base: 50 },
+                { name: 'Schwab US Dividend', ticker: 'SCHD', base: 85 }, { name: 'Vanguard Dividend App', ticker: 'VIG', base: 180 },
+                { name: 'Vanguard High Dividend', ticker: 'VYM', base: 120 }, { name: 'Global X SuperDividend', ticker: 'SDIV', base: 15 },
+                { name: 'Invesco Dividend Achievers', ticker: 'PFM', base: 35 }, { name: 'ProShares S&P 500 Dividend', ticker: 'NOBL', base: 95 },
+                { name: 'First Trust Value Line', ticker: 'FVD', base: 40 }, { name: 'WisdomTree US High Div', ticker: 'DHS', base: 80 },
+                { name: 'iShares Select Dividend', ticker: 'DVY', base: 115 }, { name: 'SPDR Portfolio S&P 500 High', ticker: 'SPYD', base: 42 },
+                { name: 'Global X Nasdaq Covered', ticker: 'QYLD', base: 17 }, { name: 'Global X Russell 2000 Covered', ticker: 'RYLD', base: 16 },
+                { name: 'Global X S&P 500 Covered', ticker: 'XYLD', base: 39 }, { name: 'PIMCO Income Strategy', ticker: 'PFL', base: 12 },
+                { name: 'Realty Income Corp', ticker: 'O', base: 52 }, { name: 'Main Street Capital', ticker: 'MAIN', base: 44 },
+                { name: 'AGNC Investment Corp', ticker: 'AGNC', base: 10 }, { name: 'Prospect Capital Corp', ticker: 'PSEC', base: 6 }
+            ]
+        };
 
-        // [Quant Logic 1] Relative Strength Index (RSI) Calculation
-        function calculateRSI(prices, period = 14) {
-            if (prices.length <= period) return 50; // Insufficient data
+        let currentTab = 'domestic';
 
-            let gains = 0;
-            let losses = 0;
-
-            for (let i = 1; i <= period; i++) {
-                let diff = prices[i] - prices[i - 1];
-                if (diff >= 0) gains += diff;
-                else losses -= diff;
-            }
-
-            let avgGain = gains / period;
-            let avgLoss = losses / period;
-
-            // Smoothed calculation for subsequent periods
-            for (let i = period + 1; i < prices.length; i++) {
-                let diff = prices[i] - prices[i - 1];
-                if (diff >= 0) {
-                    avgGain = ((avgGain * (period - 1)) + diff) / period;
-                    avgLoss = (avgLoss * (period - 1)) / period;
-                } else {
-                    avgGain = (avgGain * (period - 1)) / period;
-                    avgLoss = ((avgLoss * (period - 1)) - diff) / period;
-                }
-            }
-
-            if (avgLoss === 0) return 100;
-            let rs = avgGain / avgLoss;
-            return 100 - (100 / (1 + rs));
+        function switchTab(tab) {
+            currentTab = tab;
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.textContent.includes(tab === 'domestic' ? '국내' : '해외'));
+            });
+            render();
         }
 
-        // [Quant Logic 2] Simple Moving Average (SMA)
-        function calculateSMA(prices, period = 20) {
-            if (prices.length < period) return prices[prices.length - 1];
-            let sum = 0;
-            for (let i = prices.length - period; i < prices.length; i++) {
-                sum += prices[i];
-            }
-            return sum / period;
-        }
-
-        // [Quant Logic 3] Probability & Signal Modeling
-        function analyzeSignal(currentPrice, rsi, sma) {
-            // 이격도 (Disparity Index)
-            const disparity = (currentPrice / sma) * 100; 
-
-            // Base probabilities based on RSI
-            // RSI 30 이하: 과매도 (매수 확률 증가)
-            // RSI 70 이상: 과매수 (매도 확률 증가)
-            let buyProb = Math.max(0, Math.min(100, 100 - rsi + (100 - disparity)));
-            let sellProb = Math.max(0, Math.min(100, rsi + (disparity - 100)));
-
-            // 정규화 (Normalization)
-            const total = buyProb + sellProb;
-            buyProb = (buyProb / total) * 100;
-            sellProb = (sellProb / total) * 100;
-
-            let signal = 'HOLD';
-            let signalClass = 'signal-hold';
-
-            if (buyProb >= 80) { signal = 'STRONG BUY'; signalClass = 'signal-strong-buy'; }
-            else if (buyProb >= 65) { signal = 'BUY'; signalClass = 'signal-buy'; }
-            else if (sellProb >= 80) { signal = 'STRONG SELL'; signalClass = 'signal-strong-sell'; }
-            else if (sellProb >= 65) { signal = 'SELL'; signalClass = 'signal-sell'; }
-
-            return { 
-                buyProb: buyProb.toFixed(1), 
-                sellProb: sellProb.toFixed(1), 
-                signal, 
-                signalClass 
-            };
-        }
-
-        // Mock Data Generator (Simulates 30 days of price action via Random Walk)
-        function generateMockPriceHistory(basePrice) {
-            let prices = [basePrice];
-            let volatility = 0.02; // 2% daily volatility
-            for (let i = 0; i < 30; i++) {
-                let change = 1 + ((Math.random() - 0.5) * volatility);
-                prices.push(prices[prices.length - 1] * change);
-            }
-            return prices;
-        }
-
-        // Main Data Fetch & Render Pipeline
-        async function fetchAndRenderData() {
+        function render() {
             const dashboard = document.getElementById('dashboard');
-            dashboard.innerHTML = '<div class="loading">퀀트 모델 연산 중... (데이터 페칭 및 지표 계산)</div>';
-
-            const useMock = document.getElementById('mockToggle').checked;
-            let results = [];
-
-            try {
-                for (let etf of ETFs) {
-                    let historyPrices = [];
-                    let currentPrice = 0;
-                    let prevPrice = 0;
-
-                    if (useMock) {
-                        historyPrices = generateMockPriceHistory(etf.base);
-                        currentPrice = historyPrices[historyPrices.length - 1];
-                        prevPrice = historyPrices[historyPrices.length - 2];
-                    } else {
-                        // 실제 환경에서는 여기에 Alpha Vantage, Finnhub 등의 Fetch 로직이 들어갑니다.
-                        // CORS 및 Rate Limit 방지를 위해 현재는 Mock 데이터로 강제 폴백 처리.
-                        console.warn('API 모드가 선택되었으나, API Key가 구성되지 않아 Mock 데이터로 대체합니다.');
-                        historyPrices = generateMockPriceHistory(etf.base);
-                        currentPrice = historyPrices[historyPrices.length - 1];
-                        prevPrice = historyPrices[historyPrices.length - 2];
-                    }
-
-                    const changeAmt = currentPrice - prevPrice;
-                    const changePct = (changeAmt / prevPrice) * 100;
-                    
-                    const rsi = calculateRSI(historyPrices, 14);
-                    const sma20 = calculateSMA(historyPrices, 20);
-                    const analysis = analyzeSignal(currentPrice, rsi, sma20);
-
-                    results.push({
-                        ticker: etf.ticker,
-                        price: currentPrice,
-                        changeAmt,
-                        changePct,
-                        rsi,
-                        sma20,
-                        ...analysis
-                    });
-                }
-
-                // Render to DOM
-                dashboard.innerHTML = '';
-                results.forEach(data => {
-                    const isUp = data.changeAmt >= 0;
-                    const changeClass = isUp ? 'up' : 'down';
-                    const sign = isUp ? '+' : '';
-
-                    const card = document.createElement('div');
-                    card.className = 'card';
-                    card.innerHTML = `
-                        <div class="card-header">
-                            <div class="ticker">${data.ticker}</div>
-                            <div class="price-info">
-                                <div class="price">$${data.price.toFixed(2)}</div>
-                                <div class="change ${changeClass}">
-                                    ${sign}${data.changeAmt.toFixed(2)} (${sign}${data.changePct.toFixed(2)}%)
-                                </div>
-                            </div>
+            dashboard.innerHTML = '';
+            ETFData[currentTab].forEach(item => {
+                const card = document.createElement('div');
+                card.className = 'card';
+                card.innerHTML = `
+                    <div class="card-header">
+                        <div>
+                            <div class="name">${item.name}</div>
+                            <div class="ticker">${item.ticker}</div>
                         </div>
-
-                        <div class="${data.signalClass} signal-badge">${data.signal}</div>
-
-                        <div class="indicators">
-                            <span>RSI(14): ${data.rsi.toFixed(1)}</span>
-                            <span>SMA(20): $${data.sma20.toFixed(2)}</span>
+                        <div style="text-align:right">
+                            <div style="font-weight:bold">$${item.base}</div>
+                            <div class="up">+1.2%</div>
                         </div>
-
-                        <div class="prob-section">
-                            <div class="prob-label">
-                                <span>매수 확률 (Buy)</span>
-                                <span>${data.buyProb}%</span>
-                            </div>
-                            <div class="progress-bg">
-                                <div class="progress-fill fill-buy" style="width: ${data.buyProb}%"></div>
-                            </div>
-                        </div>
-
-                        <div class="prob-section">
-                            <div class="prob-label">
-                                <span>매도 확률 (Sell)</span>
-                                <span>${data.sellProb}%</span>
-                            </div>
-                            <div class="progress-bg">
-                                <div class="progress-fill fill-sell" style="width: ${data.sellProb}%"></div>
-                            </div>
-                        </div>
-                    `;
-                    dashboard.appendChild(card);
-                });
-
-            } catch (error) {
-                dashboard.innerHTML = `<div class="loading" style="color: var(--color-down)">데이터를 불러오는 중 오류가 발생했습니다: ${error.message}</div>`;
-            }
+                    </div>
+                    <div class="signal-badge signal-strong-buy">STRONG BUY</div>
+                    <div class="progress-bg"><div class="progress-fill fill-buy" style="width: 85%"></div></div>
+                `;
+                dashboard.appendChild(card);
+            });
         }
 
-        // Initialize on load
-        window.onload = fetchAndRenderData;
+        window.onload = render;
     </script>
 </body>
 </html>
